@@ -55,8 +55,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB 연결 완료'));
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB 연결 완료'))
+.catch(err => console.error('MongoDB 연결 실패', err));
+
 
 app.use('/', authRoutes);
 
