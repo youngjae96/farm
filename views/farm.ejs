@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .top-nav {
+    margin: 0;
+    padding: 12px 24px;
+  }
+
+  body > *:not(.top-nav) {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .farm-wrapper {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+</style>
+<style>
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+</style>
+
+<body data-username="<%= user.username %>">
+
+  <title>팜 RPG - 농장</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<!-- ✅ 전체 UI 상단 네비게이션 바 -->
+<div style="
+  background: #f5f5f5;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #ddd;
+  font-family: 'Pretendard', sans-serif;
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  class="top-nav" style="background: #f5f5f5; ..."
+">
+  <!-- 왼쪽: 로고/게임 이름 -->
+  <div style="font-weight: bold; font-size: 1.2rem;">
+    🌾 팜RPG
+  </div>
+
+  <!-- 가운데: 메뉴 -->
+  <div style="display: flex; gap: 20px; font-size: 1rem;">
+    <a href="/farm" style="text-decoration: none; color: #333;">🌱 농장</a>
+    <a href="#" onclick="document.getElementById('inventory-popup').style.display='block'" style="text-decoration: none; color: #333;">🎒 인벤토리</a>
+    <a href="#" style="text-decoration: none; color: #333;">🎣 낚시</a>
+  </div>
+
+  <!-- 오른쪽: 유저 정보/로그아웃 -->
+<div style="position: absolute; top: 12px; right: 24px; font-weight: bold;">
+</div>
+  <div style="display: flex; align-items: center; gap: 14px;">
+  <div style="font-weight: bold;">💰 <%= user.gold %> G</div>
+  <span style="font-weight: 600;">👩‍🌾 <%= user.username %></span>
+  <form action="/logout" method="POST" style="margin: 0;">
+    <button type="submit" style="background: #f44336; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">로그아웃</button>
+  </form>
+</div>
+</div>
+
+<!-- ✅ 기존 인벤토리 버튼 -->
+<button id="inventory-toggle" style="display: none;"></button>
+
+<!-- ✅ 인벤토리 팝업창 -->
+<div id="inventory-popup" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  z-index: 1000;
+  width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+">
+  <h2 style="text-align: center; margin-bottom: 16px;">
+    <img src="/assets/icons/inventory.png" style="width: 20px; vertical-align: middle; margin-right: 6px;">
+    <span style="font-size: 1.2rem;">내 인벤토리</span>
+  </h2>
+
+  <div style="display: grid; grid-template-columns: repeat(5, 60px); gap: 10px; justify-content: center;">
+    <% user.inventory.slots.forEach((slot, i) => { %>
+      <div
+  class="slot"
+  data-item="<%= slot?.item %>"
+  onclick="<% if (slot && slot.item && slot.amount > 0) { %>selectSeed('<%= slot.item %>', <%= i %>)<% } %>"
+  style="
+    width: 60px; height: 80px;
+    border: 2px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #f8f8f8;
+    font-size: 12px;
+    border-radius: 8px;
+  "
+>
+        <% if (slot && slot.item && slot.amount > 0) { %>
+          <img src="/assets/items/<%= slot.item %>.png" alt="<%= slot.item %>" style="width: 32px; height: 32px;">
+          <div><%= items[slot.item]?.name || slot.item %></div>
+          <span>x<%= slot.amount %></span>
+        <% } else { %>
+          <span style="color: #aaa; font-size: 11px;">빈 슬롯</span>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- 닫기 버튼 -->
+  <div style="text-align: center; margin-top: 20px;">
+    <button onclick="document.getElementById('inventory-popup').style.display='none'" style="
+      background: #f44336; color: white; border: none;
+      padding: 8px 16px; border-radius: 6px; cursor: pointer;
+    ">닫기</button>
+  </div>
+</div>
+
+<div class="farm-page">
+<div class="farm-header">
+  <h1>팜RPG ✨ 내 농장</h1>
+  <p><%= user.username %> 농부 🌾</p>
+  <p>❄️ 농장 레벨: Lv.<%= user.farmLevel %> (<%= user.farmXP %> XP)</p>
+</div>
+<pre>
+</pre>
+
+<div class="farm-wrapper">
+  <div class="farm-grid">
+    <% for (let y = 0; y < plots.length; y++) { 
+         for (let x = 0; x < plots[y].length; x++) {
+           const plot = plots[y][x];
+           if (plot && plot.crop && items[plot.crop]) {
+             const cropInfo = items[plot.crop];
+             const now = Date.now();
+             const plantedAt = new Date(plot.plantedAt).getTime();
+             const timePassed = now - plantedAt;
+             const timeLeft = cropInfo.growTime - timePassed;
+             const minutes = Math.floor(timeLeft / 60000);
+             const seconds = Math.floor((timeLeft % 60000) / 1000);
+    %>
+      <% if (timeLeft > 0) { %>
+<div class="plot growing" data-timeleft="<%= timeLeft %>">
+  <%= cropInfo.emoji %>
+  <div class="time">남은 시간: <span class="countdown"></span></div>
+</div>
+      <% } else { %>
+        <div class="plot grown" title="<%= cropInfo.name %>">✅ <%= cropInfo.emoji %></div>
+      <% } %>
+    <% } else { %>
+      <div class="plot">🟩</div>
+    <% } } } %>
+  </div> <!-- .farm-grid 끝 -->
+
+<!-- 마을출력 -->
+<div style="
+  display: grid;
+  grid-template-columns: repeat(5, 60px);
+  gap: 6px;
+  justify-content: center;
+  margin-top: 10px;
+">
+  <% user.village.tiles.forEach((row, y) => { %>
+  <% row.forEach((tile, x) => { %>
+    <div
+  data-coord="<%= y %>-<%= x %>"
+  data-has="<%= tile ? 'true' : 'false' %>"
+  onclick="buildAt(<%= y %>, <%= x %>)"
+  style="
+    width: 60px;
+    height: 60px;
+    border: 2px solid #ccc;
+    background: <%= tile ? '#e6ffe6' : '#f0f0f0' %>;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  "
+>
+  <% if (tile) { %>
+    <img src="/assets/buildings/<%= tile %>.png" style="width: 36px;" />
+  <% } %>
+</div>
+  <% }) %>
+<% }) %>
+</div>
+
+
+  <div class="info-panel">
+    <form method="POST" action="/plant">
+      <button type="submit">🌱 씨앗 심기</button>
+    </form>
+    <form method="POST" action="/harvest">
+      <button type="submit">🌾 수확하기</button>
+    </form>
+
+
+
+
+<!-- 💬 채팅 아이콘 -->
+<div id="chat-toggle">💬</div>
+
+<!-- 💬 채팅창 팝업 -->
+<div id="chat-popup" class="hidden">
+  <div id="chat-header">
+    <span>💬 팜 채팅방</span>
+    <button id="chat-close">×</button>
+  </div>
+  <div id="chat-messages"></div>
+  <form id="chat-form">
+    <input type="text" id="chat-input" placeholder="메시지 입력..." autocomplete="off" />
+    <button type="submit">▷</button>
+  </form>
+</div>
+
+
+<!-- ✅ 인벤토리 버튼클릭 스크립트 -->
+<script>
+  let selectedSeed = null;
+
+  function selectSeed(seedName, index) {
+  // ✅ 씨앗이 아닌 건 막기 (seed로 끝나지 않으면 무시)
+  if (!seedName.endsWith("Seed")) {
+    alert("이건 씨앗이 아니에요!");
+    return;
+  }
+    selectedSeed = seedName;
+
+    // 모든 슬롯에서 기존 심기 버튼 제거
+    document.querySelectorAll('.slot').forEach(slot => {
+      const existing = slot.querySelector('.plant-btn');
+      if (existing) existing.remove();
+    });
+
+    // 선택된 슬롯 아래에 심기 버튼 생성
+    const slot = document.querySelectorAll('.slot')[index];
+    const btn = document.createElement('button');
+    btn.textContent = '🌱 심기';
+    btn.className = 'plant-btn';
+    btn.style = 'margin-top: 4px; padding: 2px 6px; font-size: 12px;';
+
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      plantSelectedSeed(seedName);
+    };
+
+    slot.appendChild(btn);
+  }
+
+  function plantSelectedSeed(seedName) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/plant';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'seedName';
+    input.value = seedName;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+  }
+</script>
+
+<script>
+  function buildAt(y, x) {
+  const cell = document.querySelector(`[data-coord='${y}-${x}']`);
+
+  // ⚠️ 여기가 핵심!
+  const hasBuilding = cell.getAttribute("data-has") === "true";
+
+  if (hasBuilding) {
+    alert("이미 건물이 설치된 칸입니다!");
+    return;
+  }
+
+  const building = prompt("설치할 건물 이름을 입력하세요 (예: house)");
+  if (!building) return;
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = "/village/build";
+
+  form.innerHTML = `
+    <input type="hidden" name="y" value="${y}">
+    <input type="hidden" name="x" value="${x}">
+    <input type="hidden" name="building" value="${building}">
+  `;
+
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
+
+<!-- ✅ 토글 스크립트 -->
+<script>
+  document.getElementById("inventory-toggle").addEventListener("click", () => {
+    const popup = document.getElementById("inventory-popup");
+    popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+  });
+</script>
+
+<!-- 💬 채팅 스크립트 로딩 -->
+<script src="/script.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/chat.js"></script>
+  </div>
+</body>
+</html>

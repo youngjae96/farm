@@ -1,0 +1,19 @@
+<h2 style="text-align: center;">🏘️ 내 마을</h2>
+
+<div style="display: grid; grid-template-columns: repeat(5, 60px); gap: 6px;">
+  <% user.village.tiles.forEach((row, y) => { %>
+    <% row.forEach((tile, x) => { %>
+      <div style="
+        width: 60px; height: 60px;
+        border: 1px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: <%= tile ? '#cce5ff' : '#f0f0f0' %>;
+        font-weight: bold;
+      ">
+        <%= tile || '' %>
+      </div>
+    <% }) %>
+  <% }) %>
+</div>

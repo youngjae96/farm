@@ -1,0 +1,162 @@
+body {
+  background: #eaf6dc url("/images/farm_bg.png") no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Courier New', monospace;
+  color: #333;
+  text-align: center;
+  padding-top: 100px;
+}
+
+.login-box {
+  background: #fff8dc;
+  padding: 30px;
+  border-radius: 20px;
+  display: inline-block;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+input {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  width: 200px;
+}
+
+button {
+  background: #88c057;
+  color: white;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.farm-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 64px);
+  gap: 6px;
+  background-color: #e2d9c6;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 6px #b49f88;
+  width: max-content; /* ✅ grid 폭만큼만 차지 */
+}
+
+.plot {
+  background: #8fcf7b;
+  border: 1px solid #5f9e55;
+  border-radius: 6px;
+  width: 60px;
+  height: 60px;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  position: relative;
+}
+.plot .time {
+  font-size: 10px;
+  position: absolute;
+  bottom: 2px;
+  color: #fffde0;
+}
+.plot.grown {
+  animation: bounce 0.4s ease;
+}
+
+@keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.farm-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* ✅ 전체를 수직 가운데 정렬 */
+}
+.farm-header {
+  text-align: center;
+  margin-top: 20px;
+}
+.farm-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 24px;
+  width: max-content;  /* ✅ 이거랑 아래 한 쌍으로 중요 */
+}
+
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+#chat-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #90e090;
+  padding: 10px 14px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 999;
+}
+
+#chat-popup {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 280px;
+  background: #fff;
+  border: 2px solid #aadbaa;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+}
+
+#chat-popup.hidden {
+  display: none;
+}
+
+#chat-header {
+  background: #d4f1c5;
+  padding: 8px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #a0cc92;
+}
+
+#chat-messages {
+  height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+  font-size: 14px;
+}
+
+#chat-form {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+
+#chat-input {
+  flex: 1;
+  border: none;
+  padding: 8px;
+  font-size: 14px;
+}
+
+#chat-form button {
+  padding: 0 10px;
+  border: none;
+  background: #a6e3a1;
+  cursor: pointer;
+}
