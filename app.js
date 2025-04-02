@@ -15,7 +15,7 @@ const ChatMessage = require('./models/ChatMessage');
 const MongoStore = require('connect-mongo');
 
 const sessionStore = MongoStore.create({
-  mongoUrl: 'mongodb://127.0.0.1:27017/farm-rpg',
+  mongoUrl: process.env.MONGODB_URI,
   collectionName: 'sessions'
 });
 
@@ -25,8 +25,8 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
 store: MongoStore.create({
-  mongoUrl: 'mongodb://127.0.0.1:27017/farm-rpg',
-  collectionName: 'sessions'
+  mongoUrl: 'process.env.MONGODB_URI',
+  collectionName: 'farm'
 }),
 
   cookie: {
